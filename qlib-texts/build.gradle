@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+}
+
+apply from: "../component.gradle"
+
+applyGlobalScript("Property.gradle")
+
+repositories {
+    maven {
+        url = uri("https://maven.pkg.github.com/Grass-Block/GradlePackages")
+        credentials {
+            username = globalProperty("gpr.user")
+            password = globalProperty("gpr.key")
+        }
+    }
+}
+
+dependencies {
+    compileOnly 'net.kyori:adventure-text-serializer-gson:4.17.0'
+    compileOnly 'net.kyori:adventure-text-serializer-legacy:4.17.0'
+    compileOnly 'net.kyori:adventure-text-serializer-plain:4.17.0'
+    compileOnly 'net.kyori:adventure-text-minimessage:4.17.0'
+
+    compileOnly project(":qlib-base")
+    compileOnly 'me.gb2022.commons:commons-container:1.0'
+}

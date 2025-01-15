@@ -1,0 +1,14 @@
+plugins {
+    id 'java'
+}
+
+apply from: "../component.gradle"
+
+dependencies {
+    compileOnly projectLocal('bukkit-configurations-api')
+    compileOnly "org.apache.logging.log4j:log4j-core:2.8.1"
+
+    compileOnly project(":qlib-base")
+    compileOnly project(":qlib-texts")
+    compileOnly 'net.kyori:adventure-text-serializer-plain:4.17.0'
+}
