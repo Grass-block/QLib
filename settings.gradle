@@ -1,0 +1,8 @@
+rootProject.name = 'QLib'
+
+include 'qlib-task'
+include 'qlib-command'
+include 'qlib-configuration'
+include 'qlib-texts'
+include 'qlib-base'
+
