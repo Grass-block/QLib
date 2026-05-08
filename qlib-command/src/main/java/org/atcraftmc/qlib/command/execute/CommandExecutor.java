@@ -9,9 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface CommandExecutor {
-    default void onCommand(CommandSender sender, String[] args) {
+    default void onCommand(CommandSender sender, String name, String[] args) {
         try {
-            this.execute(new CommandExecution(sender, args, this));
+            this.execute(new CommandExecution(sender, name, args, this));
+            this.onCommand(sender, args);
         } catch (ArgumentAssertionException e) {
             List<Object> lst = new ArrayList<>(e.getInfo().length + 1);
             lst.add(e.getPosition());
@@ -25,12 +26,19 @@ public interface CommandExecutor {
         }
     }
 
-    default void onCommandTab(CommandSender sender, String[] buffer, List<String> tabList) {
-        CommandSuggestion suggestion = new CommandSuggestion(sender, buffer);
-        this.suggest(suggestion);
-        tabList.addAll(suggestion.getSuggestions());
+    default void onCommand(CommandSender sender, String[] args) {
+
     }
 
+    default void onCommandTab(CommandSender sender, String name, String[] buffer, List<String> tabList) {
+        var suggestion = new CommandSuggestion(sender, name, buffer);
+        this.suggest(suggestion);
+        tabList.addAll(suggestion.getSuggestions());
+        this.onCommandTab(sender, buffer, tabList);
+    }
+
+    default void onCommandTab(CommandSender sender, String[] buffer, List<String> tabList) {
+    }
 
     default void suggest(CommandSuggestion suggestion) {
     }

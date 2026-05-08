@@ -1,0 +1,15 @@
+#identifier
+name: qlib-bukkit
+version: '1.0.0'
+
+#api
+main: org.atcraftmc.qlib.bukkit.BukkitLoader
+api-version: 1.13
+folia-supported: true
+load: STARTUP
+
+#description
+authors: [ "GrassBlock2022","ATCraftMC" ]
+website: https://atcraftmc.cn
+prefix: QLib
+description: qlib provider and loader on bukkit platform.

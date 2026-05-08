@@ -71,7 +71,7 @@ public abstract class TaskScheduler {
         this.cleanup(this.owner);
     }
 
-    protected void cleanup(Plugin owner) {
+    public void cleanup(Plugin owner) {
     }
 
     protected void register(String id, Task task) {

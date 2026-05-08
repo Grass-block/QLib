@@ -16,6 +16,7 @@ import java.util.function.Function;
 
 public abstract class AbstractCommand extends Command implements CommandExecutor, Listener {
     private final Map<String, AbstractCommand> subCommands = new HashMap<>();
+
     protected CommandExecutor executor = this;
     private Command covered;
 
@@ -60,8 +61,13 @@ public abstract class AbstractCommand extends Command implements CommandExecutor
                 e.printStackTrace();
             }
         }
+
+        for (var cmd : this.subCommands.values()) {
+            cmd.init(handle);
+        }
+
         String permission = this.getPermission();
-        if (permission.equals(QuarkCommand.NO_INFO)) {
+        if (permission.equals(BukkitCommand.NO_INFO)) {
             return;
         }
         String[] perms = this.getRawPermission().split(";");
@@ -79,12 +85,16 @@ public abstract class AbstractCommand extends Command implements CommandExecutor
         return this.getDescriptor().name();
     }
 
-    public QuarkCommand getDescriptor() {
-        return this.getClass().getAnnotation(QuarkCommand.class);
+    public String[] getMultiNames() {
+        return this.getDescriptor().multiNames();
     }
 
-    public <V> V optionalDescriptorInfo(Function<QuarkCommand, V> consumer, V fallback) {
-        QuarkCommand desc = this.getDescriptor();
+    public BukkitCommand getDescriptor() {
+        return this.getClass().getAnnotation(BukkitCommand.class);
+    }
+
+    public <V> V optionalDescriptorInfo(Function<BukkitCommand, V> consumer, V fallback) {
+        BukkitCommand desc = this.getDescriptor();
         if (desc == null) {
             return fallback;
         }
@@ -100,7 +110,7 @@ public abstract class AbstractCommand extends Command implements CommandExecutor
     }
 
     public final boolean isEventBased() {
-        return this.optionalDescriptorInfo(QuarkCommand::eventBased, false);
+        return this.optionalDescriptorInfo(BukkitCommand::eventBased, false);
     }
 
     @Override
@@ -109,17 +119,17 @@ public abstract class AbstractCommand extends Command implements CommandExecutor
     }
 
     public final String getRawPermission() {
-        return optionalDescriptorInfo(QuarkCommand::permission, "");
+        return optionalDescriptorInfo(BukkitCommand::permission, "");
     }
 
     @Override
     public final String getUsage() {
-        return optionalDescriptorInfo(QuarkCommand::usage, QuarkCommand.NO_INFO);
+        return optionalDescriptorInfo(BukkitCommand::usage, BukkitCommand.NO_INFO);
     }
 
     @Override
     public final String getDescription() {
-        return optionalDescriptorInfo(QuarkCommand::description, QuarkCommand.NO_INFO);
+        return optionalDescriptorInfo(BukkitCommand::description, BukkitCommand.NO_INFO);
     }
 
     @Override
@@ -157,14 +167,15 @@ public abstract class AbstractCommand extends Command implements CommandExecutor
                 if (!args[0].equals(s)) {
                     continue;
                 }
-                return subCommands.get(s).tabComplete(sender, "", subArgs);
+                return subCommands.get(s).tabComplete(sender, args[0], subArgs);
             }
         }
         if (args.length == 1) {
             tabList.addAll(this.subCommands.keySet());
         }
 
-        this.executor.onCommandTab(sender, args, tabList);
+        this.executor.onCommandTab(sender, alias, args, tabList);
+
         return tabList;
     }
 
@@ -180,18 +191,25 @@ public abstract class AbstractCommand extends Command implements CommandExecutor
         }
 
         if (args.length >= 1) {
-            String[] subArgs = new String[args.length - 1];
+            var subArgs = new String[args.length - 1];
             System.arraycopy(args, 1, subArgs, 0, args.length - 1);
             for (String s : this.subCommands.keySet()) {
                 if (!args[0].equals(s)) {
                     continue;
                 }
-                return subCommands.get(s).execute(sender, "", subArgs);
+
+                return subCommands.get(s).execute(sender, args[0], subArgs);
             }
         }
 
+        execute(this.executor, sender, commandLabel, args);
+
+        return true;
+    }
+
+    private boolean execute(CommandExecutor executor, CommandSender sender, String label, String[] args) {
         try {
-            this.executor.onCommand(sender, args);
+            executor.onCommand(sender, label, args);
         } catch (Exception e) {
             if ((e instanceof ArrayIndexOutOfBoundsException)) {
                 this.sendExceptionMessage(sender);
@@ -207,6 +225,7 @@ public abstract class AbstractCommand extends Command implements CommandExecutor
             e.printStackTrace();
             this.sendExceptionMessage(sender);
         }
+
         return true;
     }
 
@@ -260,15 +279,29 @@ public abstract class AbstractCommand extends Command implements CommandExecutor
 
     //sub-command
     public final void registerSubCommand(AbstractCommand command) {
+        for (var s : command.getMultiNames()) {
+            this.subCommands.put(s, command);
+        }
+
         this.subCommands.put(command.getName(), command);
     }
 
     public final void unregisterSubCommand(AbstractCommand command) {
         this.unregisterSubCommand(command.getName());
+
+        for (var s : command.getMultiNames()) {
+            this.subCommands.remove(s);
+        }
     }
 
     public final void unregisterSubCommand(String id) {
-        this.subCommands.remove(id);
+        var cmd = this.subCommands.remove(id);
+
+        if (cmd != null) {
+            for (var s : cmd.getMultiNames()) {
+                this.subCommands.remove(s);
+            }
+        }
     }
 
 

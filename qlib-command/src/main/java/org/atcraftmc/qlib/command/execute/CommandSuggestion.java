@@ -17,12 +17,17 @@ public final class CommandSuggestion {
 
     private final CommandSender sender;
     private final String[] buffer;
-
     private final List<String> suggestions = new ArrayList<>();
+    private final String name;
 
-    public CommandSuggestion(CommandSender sender, String[] buffer) {
+    public CommandSuggestion(CommandSender sender, String name, String[] buffer) {
         this.sender = sender;
         this.buffer = buffer;
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 
     private void add(Collection<String> items) {

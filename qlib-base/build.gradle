@@ -2,10 +2,27 @@ plugins {
     id 'java'
 }
 
+apply from: rootDir.getAbsolutePath()+"/gbuild.gradle"
+apply from: "../github-packages.gradle"
 apply from: "../component.gradle"
 
 dependencies {
     compileOnly projectLocal('adventure-api')
 
     compileOnly "org.apache.logging.log4j:log4j-core:2.8.1"
+    compileOnly projectLocal('bukkit-configurations-api')
+
+    compileOnly 'net.kyori:adventure-text-serializer-gson:4.17.0'
+    compileOnly 'net.kyori:adventure-text-serializer-legacy:4.17.0'
+    compileOnly 'net.kyori:adventure-text-serializer-plain:4.17.0'
+    compileOnly 'net.kyori:adventure-text-minimessage:4.17.0'
+
+    compileOnly projectLocal('adventure-platform-api-4.4.1')
+
+    compileOnly gbuildLib('me.gb2022.commons:commons-container')
+    compileOnly gbuildLib('me.gb2022.commons:commons-reflection')
+
+    compileOnly("com.google.guava:guava:33.6.0-jre")
 }
+
+publish_gbuild()

@@ -5,10 +5,13 @@ import org.atcraftmc.qlib.command.assertion.ArgumentAssertionException;
 import org.atcraftmc.qlib.command.assertion.CommandAssertionException;
 import org.atcraftmc.qlib.command.assertion.NumberLimitation;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
+import org.bukkit.util.Vector;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,11 +23,17 @@ public final class CommandExecution {
     private final String[] args;
     private final CommandSender sender;
     private final CommandExecutor command;
+    private final String name;
 
-    public CommandExecution(CommandSender sender, String[] args, CommandExecutor command) {
+    public CommandExecution(CommandSender sender, String name, String[] args, CommandExecutor command) {
         this.sender = sender;
         this.args = args;
         this.command = command;
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String requireArgumentAt(int position) {
@@ -65,6 +74,46 @@ public final class CommandExecution {
         } catch (NumberFormatException e) {
             throw new ArgumentAssertionException(CommandErrorType.ARGUMENT_TYPE_FLOAT, position, arg);
         }
+    }
+
+    public Vector requireCoordinate(int position) {
+        var xi = this.requireArgumentAt(position);
+        var yi = this.requireArgumentAt(position + 1);
+        var zi = this.requireArgumentAt(position + 2);
+
+        var x = 0d;
+        var y = 0d;
+        var z = 0d;
+
+        var location = attemptGetSenderLocation();
+
+        if (xi.startsWith("~")) {
+            x = location.getX() + ((xi.length() > 1) ? Float.parseFloat(xi.substring(1)) : 0);
+        } else {
+            x = requireArgumentDouble(position);
+        }
+
+        if (yi.startsWith("~")) {
+            y = location.getY() + ((yi.length() > 1) ? Float.parseFloat(yi.substring(1)) : 0);
+        } else {
+            y = requireArgumentDouble(position + 1);
+        }
+
+        if (zi.startsWith("~")) {
+            z = location.getZ() + ((zi.length() > 1) ? Float.parseFloat(zi.substring(1)) : 0);
+        } else {
+            z = requireArgumentDouble(position + 2);
+        }
+
+        return new Vector(x, y, z);
+    }
+
+    public Location attemptGetSenderLocation() {
+        if (!(this.getSender() instanceof BlockCommandSender bs)) {
+            return this.requireSenderAsPlayer().getLocation();
+        }
+
+        return bs.getBlock().getLocation();
     }
 
     public double requireArgumentDouble(int position, NumberLimitation... requirements) {

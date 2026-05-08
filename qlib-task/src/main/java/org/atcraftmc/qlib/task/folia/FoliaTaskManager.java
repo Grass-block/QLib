@@ -4,12 +4,15 @@ import org.atcraftmc.qlib.task.TaskManager;
 import org.atcraftmc.qlib.task.TaskScheduler;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public final class FoliaTaskManager extends TaskManager {
+public final class FoliaTaskManager extends TaskManager implements Listener {
     private final Map<String, FoliaRegionTaskScheduler> regions = new HashMap<>();
     private final Map<Entity, FoliaEntityTaskScheduler> entities = new HashMap<>();
 
@@ -22,6 +25,8 @@ public final class FoliaTaskManager extends TaskManager {
 
         this.async = new FoliaAsyncTaskScheduler(owner, this);
         this.global = new FoliaGlobalTaskScheduler(owner, this);
+
+
     }
 
     @Override
@@ -44,6 +49,15 @@ public final class FoliaTaskManager extends TaskManager {
         var hash = world.getName() + "@" + chunkX + "," + chunkZ;
 
         return this.regions.computeIfAbsent(hash, (k) -> new FoliaRegionTaskScheduler(this.owner, world, chunkX, chunkZ, this));
+    }
+
+    @EventHandler
+    private void onEntityDeath(EntityDeathEvent event) {
+        var task = this.entities.remove(event.getEntity());
+        if (task == null) {
+            return;
+        }
+        task.cleanup(this.owner);
     }
 
     @Override

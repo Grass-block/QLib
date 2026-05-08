@@ -2,7 +2,7 @@ package org.atcraftmc.qlib.texts;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import org.atcraftmc.qlib.PluginPlatform;
+import org.atcraftmc.qlib.platform.PluginPlatform;
 
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -74,8 +74,7 @@ public final class ComponentBlockBuilder {
     }
 
     public ComponentBlock build(String raw, boolean fullURLCheck, Component... format) {
-        raw = PluginPlatform.instance().globalFormatMessage(raw);
-
+        raw = PluginPlatform.global().globalFormatMessage(raw);
         raw = processURLs(raw, fullURLCheck);
         raw = preprocessTags(raw);
 
