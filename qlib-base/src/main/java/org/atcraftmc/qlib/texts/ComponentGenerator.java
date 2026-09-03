@@ -178,9 +178,7 @@ public interface ComponentGenerator {
             var b = Component.translatable(Objects.requireNonNull(id)).toBuilder();
             if (content.contains("#")) {
                 var c = content.split("#")[1];
-
                 var l = new ArrayList<TextComponent>();
-
 
                 for (String s : c.split(";;")) {
                     l.add(Component.text(s));

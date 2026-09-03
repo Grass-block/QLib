@@ -21,23 +21,15 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public abstract class BukkitAudienceService extends AudienceService<CommandSender> implements Listener {
-    private final Plugin plugin;
+    final Plugin plugin;
     private final PointedForwardingAudience all = new PointedForwardingAudience();
     private final PointedForwardingAudience allPlayers = new PointedForwardingAudience();
-    private final PointedAudience console = get(Bukkit.getConsoleSender());
+    private PointedAudience console;
 
     public BukkitAudienceService(Plugin plugin, TextEngine textEngine) {
         super(textEngine);
 
         this.plugin = plugin;
-
-        for (var player : Bukkit.getOnlinePlayers()) {
-            var a = get(player);
-            this.all.add(a);
-            this.allPlayers.add(a);
-        }
-
-        this.all.add(this.console);
     }
 
     @SuppressWarnings("ConstantValue")
@@ -49,7 +41,17 @@ public abstract class BukkitAudienceService extends AudienceService<CommandSende
         return new WrappedBukkitAudienceService(plugin, textEngine);
     }
 
-    public void init(){
+    public void init() {
+        this.console = get(Bukkit.getConsoleSender());
+
+        for (var player : Bukkit.getOnlinePlayers()) {
+            var a = get(player);
+            this.all.add(a);
+            this.allPlayers.add(a);
+        }
+
+        this.all.add(this.console);
+
         Bukkit.getPluginManager().registerEvents(this, this.plugin);
     }
 
@@ -73,6 +75,7 @@ public abstract class BukkitAudienceService extends AudienceService<CommandSende
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
+        this.cache.invalidate(wrap(event.getPlayer()));
         var a = get(event.getPlayer());
         this.all.add(a);
         this.allPlayers.add(a);
@@ -131,11 +134,16 @@ public abstract class BukkitAudienceService extends AudienceService<CommandSende
     }
 
     private static final class WrappedBukkitAudienceService extends BukkitAudienceService {
-        private final BukkitAudiences audiences;
+        private BukkitAudiences audiences;
 
         public WrappedBukkitAudienceService(Plugin plugin, TextEngine textEngine) {
             super(plugin, textEngine);
-            this.audiences = BukkitAudiences.create(plugin);
+        }
+
+        @Override
+        public void init() {
+            this.audiences = BukkitAudiences.create(this.plugin);
+            super.init();
         }
 
         @Override

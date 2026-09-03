@@ -72,4 +72,8 @@ public abstract class TaskManager {
         }
         this.finalizeTasks.clear();
     }
+
+    public void init() {
+
+    }
 }

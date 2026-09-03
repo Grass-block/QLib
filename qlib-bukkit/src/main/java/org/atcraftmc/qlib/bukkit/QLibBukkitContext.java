@@ -26,22 +26,19 @@ public final class QLibBukkitContext extends QLibContext {
         this.audienceService = BukkitAudienceService.create(plugin, this.textEngine);
         this.language = new LanguageContainer(this, plugin, plugin.configId());
         this.config = new ConfigContainer();
-
-        registerAPI();
-
         this.taskManager = TaskManager.getInstance(this.plugin);
-
-        if (GLOBAL == null) {
-            createGlobal();
-        }
     }
 
     public static QLibBukkitContext global() {
         return GLOBAL;
     }
 
-    private void createGlobal() {
-        GLOBAL = this;
+    public static QLibBukkitContext getInstance(BukkitPluginConcept plugin) {
+        if (GLOBAL == null) {
+            GLOBAL = new QLibBukkitContext(plugin);
+        }
+
+        return GLOBAL;
     }
 
     private void registerAPI() {
@@ -66,6 +63,13 @@ public final class QLibBukkitContext extends QLibContext {
 
             return ctx.get(audience);
         }));
+    }
+
+    @Override
+    public void init() {
+        registerAPI();
+        this.taskManager.init();
+        this.audienceService.init();
     }
 
     @Override

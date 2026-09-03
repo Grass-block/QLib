@@ -19,6 +19,8 @@ public abstract class QLibContext implements AutoCloseable {
         return textBuilder;
     }
 
+    public void init(){}
+
     public abstract AudienceService<?> audiences();
 
     public abstract LanguageContainer language();

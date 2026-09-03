@@ -18,4 +18,8 @@ public interface RenderableComponent extends ComponentLike {
     }
 
     String render(PointedAudience audience);
+
+    default Component finalRender(PointedAudience audience, Component source){
+        return source;
+    }
 }

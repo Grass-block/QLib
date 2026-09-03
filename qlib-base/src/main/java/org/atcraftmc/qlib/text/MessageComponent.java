@@ -1,5 +1,6 @@
 package org.atcraftmc.qlib.text;
 
+import net.kyori.adventure.text.Component;
 import org.atcraftmc.qlib.audience.PointedAudience;
 import org.atcraftmc.qlib.language.Language;
 import org.atcraftmc.qlib.language.LanguageItem;

@@ -26,8 +26,11 @@ public final class FoliaTaskManager extends TaskManager implements Listener {
 
         this.async = new FoliaAsyncTaskScheduler(owner, this);
         this.global = new FoliaGlobalTaskScheduler(owner, this);
+    }
 
-        BukkitEventManager.registerEventListener(owner, this);
+    @Override
+    public void init() {
+        BukkitEventManager.registerEventListener(this.owner, this);
     }
 
     @Override

@@ -68,6 +68,8 @@ public final class TextEngine {
 
         var component = TextBuilder.buildComponent(message);
 
+        rc.finalRender(audience, component);
+
         return processComponent(audience, component);
     }
 

@@ -24,7 +24,7 @@ public final class NumberLimitation {
     }
 
     public static NumberLimitation any() {
-        return new NumberLimitation(Double.MIN_VALUE, Double.MAX_VALUE);
+        return new NumberLimitation(-Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
     public void test(double number, int position) {
