@@ -56,7 +56,7 @@ public final class QLibBukkitContext extends QLibContext {
             ctx.handle(audience, message);
         }));
 
-        this.textEngine.getLocalePipeline().addLast("qlib:bukkit", LocaleHandler.wrap((audience, ctx) -> {
+        this.textEngine.getLocalePipeline().addFirst("qlib:bukkit", LocaleHandler.wrap((audience, ctx) -> {
             if (audience.getPointer(CommandSender.class) instanceof Player p) {
                 return MinecraftLocale.minecraft(p.getLocale());
             }

@@ -21,12 +21,25 @@ public abstract class LocaleHandler extends StackablePipeObject<LocaleHandler> {
     public abstract MinecraftLocale get(PointedAudience audience);
 
     public static LocaleHandler wrap(ILocaleHandler handler) {
-        return new LocaleHandler() {
-            @Override
-            public MinecraftLocale get(PointedAudience audience) {
-                return handler.get(audience,this.parent);
-            }
-        };
+        return new WrappedLocaleProvider(handler);
+    }
+
+    private static final class WrappedLocaleProvider extends LocaleHandler {
+        private final ILocaleHandler handler;
+
+        private WrappedLocaleProvider(ILocaleHandler handler) {
+            this.handler = handler;
+        }
+
+        @Override
+        public MinecraftLocale get(PointedAudience audience) {
+            return this.handler.get(audience, this.parent);
+        }
+
+        @Override
+        public String toString() {
+            return "[WrappedLocaleProvider -> " + this.handler + "]";
+        }
     }
 
     public interface ILocaleHandler {
